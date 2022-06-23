@@ -12,7 +12,6 @@ import com.naram.weather.util.eventbus.Event
 import com.naram.weather.util.eventbus.RxEventBus
 import com.naram.weather.data.api.ApiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -31,7 +30,6 @@ class MainViewModel @Inject constructor(
         private val TAG = MainViewModel::class.java.name
     }
 
-    private lateinit var compositeDisposable: CompositeDisposable
     val etSearchCity = ObservableField<String>()
     val tvCity = ObservableField<String>()
     val tvTemperature = ObservableField<String>()
@@ -64,36 +62,23 @@ class MainViewModel @Inject constructor(
             } ?: apply {
                 tvCity.set(getString(R.string.error))
             }
-        } else {
-            RxEventBus.post(Event.PERMISSION_CHECK, true)
         }
     }
 
     private fun initObserver() {
-        compositeDisposable = CompositeDisposable()
-        compositeDisposable.add(
-            RxEventBus.listen<Boolean>(Event.PERMISSION_GRANTED).subscribe { isPermissionGranted ->
+        RxEventBus.listen<Boolean>(Event.PERMISSION_GRANTED).subscribe { isPermissionGranted ->
                 if(isPermissionGranted) {
                     getLocation()?.let {
                         val (name, nx, ny) = it
                         tvCity.set(name)
                         getDate()
                         getWeather(nx, ny)
-                    } ?: apply {
+                    } ?: run {
                         tvCity.set(getString(R.string.error))
                     }
-                } else {
-                    RxEventBus.post(Event.PERMISSION_CHECK, true)
                 }
             }
-        )
     }
-
-    private fun permissionCheck() = resourceProvider.permissionCheck()
-
-    private fun getLocation() = resourceProvider.getLocation()
-
-    private fun getString(resId: Int) = resourceProvider.getString(resId)
 
     private fun getDate() {
         val today = Date()
@@ -167,12 +152,15 @@ class MainViewModel @Inject constructor(
                 }
             }
         }
-
-        if (tvMaxTemperature.get().isNullOrEmpty()) {
-        }
-        if (tvMinTemperature.get().isNullOrEmpty()) {
-
-        }
     }
+
+    /**
+     * ResourceProvider 메소드
+     */
+    private fun permissionCheck() = resourceProvider.permissionCheck()
+
+    private fun getLocation() = resourceProvider.getLocation()
+
+    private fun getString(resId: Int) = resourceProvider.getString(resId)
 
 }

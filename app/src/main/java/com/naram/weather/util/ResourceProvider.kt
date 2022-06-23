@@ -1,6 +1,5 @@
 package com.naram.weather.util
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.*
@@ -122,17 +121,18 @@ class ResourceProvider @Inject constructor(
     /**
      * 사용자가 검색한 도시의 위치
      */
-    fun getCityPoint(city: String): Point {
+    fun getCityPoint(search: String): Point {
         try {
             val inst = context.resources.assets.open("Location.xls")
             val wb = Workbook.getWorkbook(inst)
 
             if (wb != null) {
-                val sheet = wb.getSheet(0) // 시트 불러오기
+                val index = if(majorCityList.contains(search)) 1 else 0
+                val sheet = wb.getSheet(index) // 시트 불러오기
                 if (sheet != null) {
                     var start = 0 // row 인덱스 시작
                     var end = sheet.rows - 1
-                    var mid = 0
+                    var mid: Int
 
                     while (start <= end) {
                         mid = (start + end) / 2
@@ -140,19 +140,19 @@ class ResourceProvider @Inject constructor(
                         val cell2 = sheet.getCell(2, mid).contents
                         val cell3 = sheet.getCell(3, mid).contents
 
-                        val cell = if (majorCityList.contains(city)) cell2 else cell3
+                        val cell = if (majorCityList.contains(search)) cell2 else cell3
 
                         when {
-                            cell.contains(city) -> {
+                            cell.contains(search) -> {
                                 val nx = sheet.getCell(5, mid).contents.toInt()
                                 val ny = sheet.getCell(6, mid).contents.toInt()
 
-                                return Point(city, nx, ny)
+                                return Point(cell, nx, ny)
                             }
-                            cell > city -> {
+                            cell > search -> {
                                 end = mid - 1
                             }
-                            cell < city -> {
+                            cell < search -> {
                                 start = mid + 1
                             }
                         }

@@ -12,7 +12,7 @@ object RxEventBus {
     }
 
     inline fun <reified T> listen(eventName: Event): Observable<T> {
-        if(mutableEvents.containsKey(eventName).not()) {
+        if (mutableEvents.containsKey(eventName).not()) {
             mutableEvents[eventName] = PublishSubject.create()
         }
         return mutableEvents[eventName]!!.ofType(T::class.java)

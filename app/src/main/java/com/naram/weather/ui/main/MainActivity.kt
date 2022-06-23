@@ -1,5 +1,7 @@
 package com.naram.weather.ui.main
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,7 +15,6 @@ import com.naram.weather.databinding.ActivityMainBinding
 import com.naram.weather.util.eventbus.Event
 import com.naram.weather.util.eventbus.RxEventBus
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -27,13 +28,10 @@ class MainActivity : AppCompatActivity() {
     // permission
     private lateinit var permissionResultLauncher: ActivityResultLauncher<Array<String>>
 
-    private lateinit var compositeDisposable: CompositeDisposable
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         initView()
-        initObserver()
         initResultLauncher()
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
@@ -45,22 +43,10 @@ class MainActivity : AppCompatActivity() {
         window.statusBarColor = Color.TRANSPARENT
     }
 
-    private fun initObserver() {
-        compositeDisposable = CompositeDisposable()
-        compositeDisposable.add(
-            RxEventBus.listen<Boolean>(Event.PERMISSION_CHECK).subscribe { isPermissionCheck ->
-                if(isPermissionCheck) {
-                    initResultLauncher()
-                }
-            }
-        )
-    }
-
     private fun initResultLauncher() {
         permissionResultLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
                 permissions.entries.forEach {
-                    val permissionName = it.key
                     val isGranted = it.value
                     if (isGranted) {
                         // Permission is granted
@@ -72,12 +58,15 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-        permissionResultLauncher.launch(
-            arrayOf(
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
+        if(checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionResultLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
             )
-        )
+        }
     }
 
 }
