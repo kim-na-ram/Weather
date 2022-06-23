@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="model"
+            type="com.naram.weather.ui.main.MainViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginVertical="5dp"
+        android:background="@drawable/item_background"
+        android:padding="10dp">
+
+        <LinearLayout
+            android:id="@+id/llSearchBar"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:orientation="horizontal"
+            android:weightSum="5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0">
+
+            <EditText
+                android:id="@+id/etSearchCity"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1.2"
+                android:fontFamily="@font/nsr_regular"
+                android:hint="원하는 도시를 검색해보세요."
+                android:singleLine="true"
+                android:text="@={model.etSearchCity}"
+                android:textSize="15sp" />
+
+            <Button
+                android:id="@+id/btnSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_weight="3.8"
+                android:fontFamily="@font/nsr_bold"
+                android:backgroundTint="@color/blue"
+                android:textColor="@color/white"
+                android:onClick="@{() -> model.clickSearchButton()}"
+                android:text="검색"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvCity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="@font/nsr_extrabold"
+            android:text="@={model.tvCity}"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toTopOf="@id/tvTemperature"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="CITY" />
+
+        <ImageView
+            android:id="@+id/ivSky"
+            loadImage="@{model.resId}"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/ic_sunny" />
+
+        <!--            <ImageView-->
+        <!--                android:id="@+id/ivPty"-->
+        <!--                android:layout_width="80dp"-->
+        <!--                android:layout_height="80dp"-->
+        <!--                android:src="@drawable/ic_snow"-->
+        <!--                app:layout_constraintEnd_toEndOf="parent"-->
+        <!--                app:layout_constraintTop_toTopOf="parent" />-->
+
+        <TextView
+            android:id="@+id/tvTemperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nsr_bold"
+            android:text="@={model.tvTemperature}"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/ivSky"
+            app:layout_constraintEnd_toStartOf="@id/tvTemperatureUnit"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="TEMP" />
+
+        <TextView
+            android:id="@+id/tvTemperatureUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/nsr_bold"
+            android:text="°C"
+            android:textSize="40sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/ivSky"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvTemperature" />
+
+        <TextView
+            android:id="@+id/tvMinTemperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:text="@={model.tvMinTemperature}"
+            android:textSize="14sp"
+            android:visibility="@{model.tvMinTemperature.empty? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toStartOf="@id/divider"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTemperature"
+            tools:text="MIN TEMP" />
+
+        <TextView
+            android:id="@+id/divider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:text="/"
+            android:textSize="14sp"
+            android:visibility="@{model.tvMinTemperature.empty||model.tvMaxTemperature.empty? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toStartOf="@id/tvMaxTemperature"
+            app:layout_constraintStart_toEndOf="@id/tvMinTemperature"
+            app:layout_constraintTop_toBottomOf="@id/tvTemperature" />
+
+        <TextView
+            android:id="@+id/tvMaxTemperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@={model.tvMaxTemperature}"
+            android:textSize="14sp"
+            android:visibility="@{model.tvMaxTemperature.empty? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/divider"
+            app:layout_constraintTop_toBottomOf="@id/tvTemperature"
+            tools:text="MAX TEMP" />
+
+        <TextView
+            android:id="@+id/tvPrecipitationText"
+            android:layout_width="wrap_content"
+            android:layout_height="17dp"
+            android:fontFamily="@font/nsr_regular"
+            android:text="강수 확률 : "
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@id/tvPrecipitation"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivSky" />
+
+        <TextView
+            android:id="@+id/tvPrecipitation"
+            android:layout_width="wrap_content"
+            android:layout_height="17dp"
+            android:fontFamily="@font/nsr_regular"
+            android:text="@={model.tvPrecipitation}"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@id/tvPrecipitationUnit"
+            app:layout_constraintStart_toEndOf="@id/tvPrecipitationText"
+            app:layout_constraintTop_toTopOf="@id/tvPrecipitationText"
+            tools:text="PRECIPITATION" />
+
+        <TextView
+            android:id="@+id/tvPrecipitationUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="17dp"
+            android:fontFamily="@font/nsr_regular"
+            android:text="%"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvPrecipitation"
+            app:layout_constraintTop_toTopOf="@id/tvPrecipitationText" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
