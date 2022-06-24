@@ -12,6 +12,7 @@ import com.naram.weather.util.eventbus.Event
 import com.naram.weather.util.eventbus.RxEventBus
 import com.naram.weather.data.api.ApiRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -38,6 +39,20 @@ class MainViewModel @Inject constructor(
     val tvPrecipitation = ObservableField<String>()
     val resId = ObservableInt(0)
 
+    private lateinit var compositeDisposable: CompositeDisposable
+
+    private var baseDate: Int = 0
+    private lateinit var baseTime: String
+
+    /**
+     * ResourceProvider 메소드
+     */
+    private fun permissionCheck() = resourceProvider.permissionCheck()
+
+    private fun getLocation() = resourceProvider.getLocation()
+
+    private fun getString(resId: Int) = resourceProvider.getString(resId)
+
     fun clickSearchButton() {
         etSearchCity.get()?.let {
             val (name, nx, ny) = resourceProvider.getCityPoint(it)
@@ -48,24 +63,13 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private var baseDate: Int = 0
-    private lateinit var baseTime: String
-
     init {
         initObserver()
-        if(permissionCheck()) {
-            getLocation()?.let {
-                val (name, nx, ny) = it
-                tvCity.set(name)
-                getDate()
-                getWeather(nx, ny)
-            } ?: apply {
-                tvCity.set(getString(R.string.error))
-            }
-        }
     }
 
     private fun initObserver() {
+        compositeDisposable = CompositeDisposable()
+        compositeDisposable.add(
         RxEventBus.listen<Boolean>(Event.PERMISSION_GRANTED).subscribe { isPermissionGranted ->
                 if(isPermissionGranted) {
                     getLocation()?.let {
@@ -78,6 +82,7 @@ class MainViewModel @Inject constructor(
                     }
                 }
             }
+        )
     }
 
     private fun getDate() {
@@ -154,13 +159,12 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    /**
-     * ResourceProvider 메소드
-     */
-    private fun permissionCheck() = resourceProvider.permissionCheck()
+    override fun onCleared() {
+        // CompositeDisposable dispose
+        if(!compositeDisposable.isDisposed)
+            compositeDisposable.dispose()
 
-    private fun getLocation() = resourceProvider.getLocation()
-
-    private fun getString(resId: Int) = resourceProvider.getString(resId)
+        super.onCleared()
+    }
 
 }
