@@ -15,7 +15,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -65,6 +64,9 @@ class MainViewModel @Inject constructor(
 
     init {
         initObserver()
+        if(permissionCheck()) {
+            getLocation()
+        }
     }
 
     private fun initObserver() {
@@ -145,7 +147,7 @@ class MainViewModel @Inject constructor(
                     when (it.fcstValue) {
                         "1" -> resId.set(R.drawable.ic_sunny)
                         "3" -> resId.set(R.drawable.ic_partly_cloudy_day)
-                        "4" -> resId.set(R.drawable.ic_clouds_100)
+                        "4" -> resId.set(R.drawable.ic_cloud)
                     }
                 }
                 "PTY" -> {

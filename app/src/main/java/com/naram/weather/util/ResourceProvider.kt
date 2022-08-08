@@ -1,9 +1,9 @@
 package com.naram.weather.util
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.*
-import android.os.Bundle
 import android.util.Log
 import com.naram.weather.R
 import com.naram.weather.ui.main.Point
@@ -37,6 +37,7 @@ class ResourceProvider @Inject constructor(
     /**
      * 사용자 위치 정보
      */
+    @SuppressLint("MissingPermission")
     fun getLocation(): Point? {
 
         var currentLocation: Location? = null
@@ -52,7 +53,6 @@ class ResourceProvider @Inject constructor(
                 currentLocation = location
             }
 
-            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
             override fun onProviderEnabled(provider: String) {}
             override fun onProviderDisabled(provider: String) {}
         }
@@ -62,7 +62,6 @@ class ResourceProvider @Inject constructor(
                 currentLocation = location
             }
 
-            override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
             override fun onProviderEnabled(provider: String) {}
             override fun onProviderDisabled(provider: String) {}
         }
@@ -127,7 +126,7 @@ class ResourceProvider @Inject constructor(
             val wb = Workbook.getWorkbook(inst)
 
             if (wb != null) {
-                val index = if(majorCityList.contains(search)) 1 else 0
+                val index = if (majorCityList.contains(search)) 1 else 0
                 val sheet = wb.getSheet(index) // 시트 불러오기
                 if (sheet != null) {
                     var start = 0 // row 인덱스 시작
